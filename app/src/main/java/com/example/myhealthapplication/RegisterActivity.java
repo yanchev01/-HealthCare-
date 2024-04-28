@@ -68,20 +68,20 @@ public class RegisterActivity extends AppCompatActivity {
     }
     public static boolean isValid(String passwordhere) {
         int f1 = 0, f2 = 0, f3 = 0;
-        if (passwordhere.length() < 8) {
+        if (passwordhere.length() < 8) { // Длина пароля должна быть не менее 8 символов.
             return false;
         } else {
-            for (int p = 0; p < passwordhere.length(); p++) {
+            for (int p = 0; p < passwordhere.length(); p++) { //Пароль должен содержать как минимум одну букву верхнего или нижнего регистра
                 if (Character.isLetter(passwordhere.charAt(p))) {
                     f1 = 1;
                 }
             }
-            for (int r = 0; r < passwordhere.length(); r++) {
+            for (int r = 0; r < passwordhere.length(); r++) { //Пароль должен содержать как минимум одну цифру
                 if (Character.isDigit(passwordhere.charAt(r))) {
                     f2 = 1;
                 }
             }
-            for (int s = 0; s < passwordhere.length(); s++) {
+            for (int s = 0; s < passwordhere.length(); s++) {  //Пароль должен содержать как минимум один из следующих специальных символов: ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~
                 char c = passwordhere.charAt(s);
                 if (c >= 33 && c <= 46 || c == 64) {
                     f3 = 1;
