@@ -50,7 +50,7 @@
         android:drawablePadding="10dp"
         android:paddingStart="10dp"
         android:ems="10"
-        android:hint="Имя пользователя"
+        android:hint="Почта"
         android:inputType="text"
         android:textColor="@color/colorWhite"
         android:textColorHint="@color/white"

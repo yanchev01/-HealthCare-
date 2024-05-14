@@ -1,71 +1,54 @@
 package com.example.myhealthapplication;
 
-import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
-
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.DatabaseMetaData;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.AuthResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import androidx.annotation.NonNull;
 
 public class Database {
-    Connection connection;
 
-    public Connection getDbConnection(){
-        String connectionstring="jdbc:mysql://server134.hosting.reg.ru:3306/u2431395_healthapp_test";
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-        }catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e){
-            throw new RuntimeException(e);
-        }
-        try{
-            connection=DriverManager.getConnection(connectionstring, "u2431395_doctor", "doctor123132!");
-        }catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-        return connection;
-    }
-    public boolean login(String username, String password) {
-        if (connection == null) {
-            Log.e("Database", "Подключение к базе данных не установлено");
-            return false;
-        }
+    private FirebaseAuth mAuth;
 
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            return false;
-        }
+    public Database() {
+        mAuth = FirebaseAuth.getInstance();
     }
-    public boolean register(String username, String email, String password) {
-        if (connection == null) {
-            Log.e("Database", "Подключение к базе данных не установлено");
-            return false;
-        }
-        else
-        {
-            String query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-            try{
-                PreparedStatement stmt = connection.prepareStatement(query);
-                stmt.setString(1, username);
-                stmt.setString(2, email);
-                stmt.setString(3, password);
-                int rowsAffected = stmt.executeUpdate();
-                return rowsAffected > 0;
-            }
-            catch (SQLException e)
-            {
-                return false;
-            }
-        }
+
+    public void login(String email, String password, final LoginCallback callback) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            callback.onSuccess();
+                        } else {
+                            callback.onFailure(task.getException().getMessage());
+                        }
+                    }
+                });
+    }
+
+    public void register(String email, String password, final RegisterCallback callback) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            callback.onSuccess();
+                        } else {
+                            callback.onFailure(task.getException().getMessage());
+                        }
+                    }
+                });
+    }
+
+    public interface LoginCallback {
+        void onSuccess();
+        void onFailure(String errorMessage);
+    }
+
+    public interface RegisterCallback {
+        void onSuccess();
+        void onFailure(String errorMessage);
     }
 }

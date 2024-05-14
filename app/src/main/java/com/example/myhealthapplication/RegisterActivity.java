@@ -16,8 +16,6 @@ public class RegisterActivity extends AppCompatActivity {
     Button btn;
     TextView tv;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,51 +43,57 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = edPassword.getText().toString();
                 String confirm = edConfirm.getText().toString();
                 Database db = new Database();
-                if(username.length()==0 || email.length()==0 || password.length()==0 || confirm.length()==0) {
-                    Toast.makeText(getApplicationContext(), "Заполните все пункты", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    if(password.compareTo(confirm)==0){
-                        if(isValid(password)) {
-                            db.register(username, email, password);
-                            Toast.makeText(getApplicationContext(), "Регистрация пройдена", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
 
+                if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Заполните все пункты", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (password.compareTo(confirm) == 0) {
+                        if (isValid(password)) {
+                            db.register(email, password, new Database.RegisterCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    Toast.makeText(getApplicationContext(), "Регистрация пройдена", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                }
+
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    Toast.makeText(getApplicationContext(), "Ошибка: " + errorMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Пароль должен содержать как минимум 8 символов, букву, цифру и специальный символ", Toast.LENGTH_SHORT).show();
                         }
-                        else {
-                            Toast.makeText(getApplicationContext(), "Пароль слишком длинный и т.п", Toast.LENGTH_SHORT).show();
-                            }
-                    }else {
-                        Toast.makeText(getApplicationContext(), "Пароли не совпадают и т.п", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Пароли не совпадают", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
     }
+
     public static boolean isValid(String passwordhere) {
         int f1 = 0, f2 = 0, f3 = 0;
-        if (passwordhere.length() < 8) { // Длина пароля должна быть не менее 8 символов.
+        if (passwordhere.length() < 8) {
             return false;
         } else {
-            for (int p = 0; p < passwordhere.length(); p++) { //Пароль должен содержать как минимум одну букву верхнего или нижнего регистра
+            for (int p = 0; p < passwordhere.length(); p++) {
                 if (Character.isLetter(passwordhere.charAt(p))) {
                     f1 = 1;
                 }
             }
-            for (int r = 0; r < passwordhere.length(); r++) { //Пароль должен содержать как минимум одну цифру
+            for (int r = 0; r < passwordhere.length(); r++) {
                 if (Character.isDigit(passwordhere.charAt(r))) {
                     f2 = 1;
                 }
             }
-            for (int s = 0; s < passwordhere.length(); s++) {  //Пароль должен содержать как минимум один из следующих специальных символов: ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~
+            for (int s = 0; s < passwordhere.length(); s++) {
                 char c = passwordhere.charAt(s);
                 if (c >= 33 && c <= 46 || c == 64) {
                     f3 = 1;
                 }
             }
-            if (f1 == 1 && f2 == 1 && f3 == 1)
-                return true;
-            return false;
+            return f1 == 1 && f2 == 1 && f3 == 1;
         }
     }
 }

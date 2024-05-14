@@ -14,11 +14,10 @@ import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
-
     EditText eUsername, edPassword;
     Button btn;
     TextView tv;
-
+    Database db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,27 +29,33 @@ public class LoginActivity extends AppCompatActivity {
         btn = findViewById(R.id.buttonLogin);
         tv = findViewById(R.id.textViewRegister);
 
+        db = new Database();
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = eUsername.getText().toString();
                 String password = edPassword.getText().toString();
-                Database db = new Database();
-                if (username.length() == 0 || password.length() == 0) {
+
+                if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Заполните все пункты", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (db.login(username, password)) {
-                        Toast.makeText(getApplicationContext(), "Вход выполнен", Toast.LENGTH_SHORT).show();
-                        SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("username", username);
-                        // save our data with key and value
-                        editor.apply();
-                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-                    }else {
-                        Toast.makeText(getApplicationContext(), "Пользователя с такими данными не существует", Toast.LENGTH_SHORT).show();
-                    }
+                    db.login(username, password, new Database.LoginCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getApplicationContext(), "Вход выполнен", Toast.LENGTH_SHORT).show();
+                            SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("username", username);
+                            editor.apply();
+                            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                        }
 
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            Toast.makeText(getApplicationContext(), "Ошибка: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         });
