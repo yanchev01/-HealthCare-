@@ -1,50 +1,71 @@
 package com.example.myhealthapplication;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
+import android.util.Log;
 
-import androidx.annotation.Nullable;
-import androidx.core.database.sqlite.SQLiteDatabaseKt;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.DatabaseMetaData;
 
-public class Database extends SQLiteOpenHelper {
-    public Database(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
-    }
+public class Database {
+    Connection connection;
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String qry1 = "create table users(username text, email text, password text)";
-        db.execSQL(qry1);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-    }
-
-    public void register(String username, String email, String password){
-        ContentValues cv = new ContentValues();
-        cv.put("username", username);
-        cv.put("email", email);
-        cv.put("password",password);
-        SQLiteDatabase db = getWritableDatabase();
-        db.insert("users", null, cv);
-        db.close();
-    }
-
-    public int login(String username, String password){
-        int result=0;
-        String str[] = new String[2];
-        str[0] = username;
-        str[1] = password;
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery("select * from users where username=? and password=?",str);
-        if(c.moveToFirst()){
-            result=1;
+    public Connection getDbConnection(){
+        String connectionstring="jdbc:mysql://server134.hosting.reg.ru:3306/u2431395_healthapp_test";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
+        }catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e){
+            throw new RuntimeException(e);
         }
-        return result;
+        try{
+            connection=DriverManager.getConnection(connectionstring, "u2431395_doctor", "doctor123132!");
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return connection;
+    }
+    public boolean login(String username, String password) {
+        if (connection == null) {
+            Log.e("Database", "Подключение к базе данных не установлено");
+            return false;
+        }
+
+        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+    public boolean register(String username, String email, String password) {
+        if (connection == null) {
+            Log.e("Database", "Подключение к базе данных не установлено");
+            return false;
+        }
+        else
+        {
+            String query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+            try{
+                PreparedStatement stmt = connection.prepareStatement(query);
+                stmt.setString(1, username);
+                stmt.setString(2, email);
+                stmt.setString(3, password);
+                int rowsAffected = stmt.executeUpdate();
+                return rowsAffected > 0;
+            }
+            catch (SQLException e)
+            {
+                return false;
+            }
+        }
     }
 }
