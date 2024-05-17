@@ -107,8 +107,8 @@
     </androidx.cardview.widget.CardView>
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView3"
-        android:layout_width="170dp"
-        android:layout_height="50dp"
+        android:layout_width="250dp"
+        android:layout_height="30dp"
         android:layout_margin="14dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="8dp"
@@ -124,11 +124,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="5dp"
-            android:padding="16dp"
+            android:padding="5dp"
             android:text="Выйти из профиля"
             android:textColor="@color/colorRed"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginLeft="55dp"/>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
