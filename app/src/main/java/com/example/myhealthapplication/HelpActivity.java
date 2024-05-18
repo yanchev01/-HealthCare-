@@ -1,24 +1,32 @@
 package com.example.myhealthapplication;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 
 public class HelpActivity extends AppCompatActivity {
-
+    private TextView tvExit;
+    private TextView tvHelp;
+    private TextView tvIdea;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_help);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        tvExit = findViewById(R.id.tv_exit);
+        tvHelp = findViewById(R.id.tv_help);
+        tvIdea = findViewById(R.id.tv_idea);
+        tvExit.setOnClickListener(v -> startActivity(new Intent(HelpActivity.this, LoginActivity.class)));
+        tvHelp.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://vk.com/sokolovvladimir"));
+            startActivity(intent);
         });
+        tvIdea.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://vk.com/sokolovvladimir"));
+            startActivity(intent);
+        });
+
     }
 }
